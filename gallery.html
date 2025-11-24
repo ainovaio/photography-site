@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - LENS Photography</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0a0a0a;
+            --dark-grey: #1a1a1a;
+            --brown: #8B6F47;
+            --gold: #D4AF37;
+            --silver: #C0C0C0;
+            --white: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--silver);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            font-weight: 300;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .mobile-toggle span {
+            width: 30px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        /* Page Header */
+        .page-header {
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark-grey) 0%, var(--black) 100%);
+            position: relative;
+            overflow: hidden;
+            margin-top: 80px;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+
+        .page-header-content {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 5rem;
+            font-weight: 300;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: var(--silver);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* Gallery Section */
+        .gallery-section {
+            padding: 8rem 5%;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .section-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 5rem;
+        }
+
+        .section-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-description {
+            color: var(--silver);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        /* Custom Collage Layout */
+        .gallery-collage {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: 180px;
+            gap: 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.6s ease;
+        }
+
+        .gallery-item.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Custom Grid Placement */
+        .gallery-item:nth-child(1) { 
+            grid-column: span 5; 
+            grid-row: span 3; 
+        }
+        
+        .gallery-item:nth-child(2) { 
+            grid-column: span 7; 
+            grid-row: span 2; 
+        }
+        
+        .gallery-item:nth-child(3) { 
+            grid-column: span 4; 
+            grid-row: span 2; 
+        }
+        
+        .gallery-item:nth-child(4) { 
+            grid-column: span 3; 
+            grid-row: span 3; 
+        }
+        
+        .gallery-item:nth-child(5) { 
+            grid-column: span 5; 
+            grid-row: span 2; 
+        }
+        
+        .gallery-item:nth-child(6) { 
+            grid-column: span 4; 
+            grid-row: span 3; 
+        }
+        
+        .gallery-item:nth-child(7) { 
+            grid-column: span 6; 
+            grid-row: span 2; 
+        }
+        
+        .gallery-item:nth-child(8) { 
+            grid-column: span 6; 
+            grid-row: span 2; 
+        }
+        
+        .gallery-item:nth-child(9) { 
+            grid-column: span 4; 
+            grid-row: span 2; 
+        }
+        
+        .gallery-item:nth-child(10) { 
+            grid-column: span 8; 
+            grid-row: span 3; 
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: grayscale(30%) brightness(0.9);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.85) 0%, rgba(139, 111, 71, 0.85) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.15) rotate(2deg);
+            filter: grayscale(0%) brightness(1);
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-overlay-icon {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--white);
+            margin-bottom: 1rem;
+            transform: scale(0);
+            transition: transform 0.3s ease 0.1s;
+        }
+
+        .gallery-item:hover .gallery-overlay-icon {
+            transform: scale(1);
+        }
+
+        .gallery-overlay h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease 0.2s;
+        }
+
+        .gallery-item:hover .gallery-overlay h3 {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .gallery-overlay p {
+            color: var(--white);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease 0.25s;
+        }
+
+        .gallery-item:hover .gallery-overlay p {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Lightbox Modal */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border: 3px solid var(--gold);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: var(--gold);
+            color: var(--black);
+            transform: rotate(90deg);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 5%;
+            text-align: center;
+            background: var(--dark-grey);
+            margin-top: 5rem;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-content h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta-content p {
+            color: var(--silver);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.3rem 3.5rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--brown) 100%);
+            color: var(--black);
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--black);
+            padding: 4rem 5%;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .footer-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .footer-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+        }
+
+        .footer-tagline {
+            color: var(--silver);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            width: 45px;
+            height: 45px;
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background: var(--gold);
+            color: var(--black);
+            transform: translateY(-3px);
+        }
+
+        .footer-section h4 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul li a {
+            color: var(--silver);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--gold);
+        }
+
+        .footer-bottom {
+            max-width: 1600px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            text-align: center;
+            color: var(--silver);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .page-header h1 { font-size: 3.5rem; }
+            .gallery-collage {
+                grid-template-columns: repeat(6, 1fr);
+                grid-auto-rows: 150px;
+            }
+            .gallery-item:nth-child(n) {
+                grid-column: span 3 !important;
+                grid-row: span 2 !important;
+            }
+            .footer-container { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                flex-direction: column;
+                background: rgba(10, 10, 10, 0.98);
+                width: 100%;
+                padding: 3rem 2rem;
+                gap: 2rem;
+                transition: left 0.4s ease;
+            }
+            .nav-links.active { left: 0; }
+            .mobile-toggle { display: flex; }
+            .page-header { height: 40vh; }
+            .page-header h1 { font-size: 2.5rem; }
+            .gallery-collage {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 250px;
+            }
+            .gallery-item:nth-child(n) {
+                grid-column: span 1 !important;
+                grid-row: span 1 !important;
+            }
+            .cta-content h2 { font-size: 2.5rem; }
+            .footer-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">LENS</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="mobile-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1>Gallery</h1>
+            <p>A Visual Journey Through Our Work</p>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section">
+        <div class="section-intro">
+            <p class="section-subtitle">Showcase</p>
+            <h2 class="section-title">Featured Gallery</h2>
+            <p class="section-description">Explore our curated collection of memorable moments and artistic visions captured through the lens.</p>
+        </div>
+
+        <div class="gallery-collage">
+            <!-- Gallery Item 1 -->
+            <div class="gallery-item" onclick="openLightbox('gallery1.jpg')">
+                <img src="gallery1.jpg" alt="Gallery Image 1">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Romantic Sunset</h3>
+                    <p>Wedding Photography</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 2 -->
+            <div class="gallery-item" onclick="openLightbox('gallery2.jpg')">
+                <img src="gallery2.jpg" alt="Gallery Image 2">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Urban Portrait</h3>
+                    <p>Lifestyle Session</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 3 -->
+            <div class="gallery-item" onclick="openLightbox('gallery3.jpg')">
+                <img src="gallery3.jpg" alt="Gallery Image 3">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Fashion Forward</h3>
+                    <p>Editorial Shoot</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 4 -->
+            <div class="gallery-item" onclick="openLightbox('gallery4.jpg')">
+                <img src="gallery4.jpg" alt="Gallery Image 4">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Golden Hour</h3>
+                    <p>Engagement Photos</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 5 -->
+            <div class="gallery-item" onclick="openLightbox('gallery5.jpg')">
+                <img src="gallery5.jpg" alt="Gallery Image 5">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Product Excellence</h3>
+                    <p>Commercial Work</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 6 -->
+            <div class="gallery-item" onclick="openLightbox('gallery6.jpg')">
+                <img src="gallery6.jpg" alt="Gallery Image 6">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Celebration</h3>
+                    <p>Event Photography</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 7 -->
+            <div class="gallery-item" onclick="openLightbox('gallery7.jpg')">
+                <img src="gallery7.jpg" alt="Gallery Image 7">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Natural Beauty</h3>
+                    <p>Portrait Series</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 8 -->
+            <div class="gallery-item" onclick="openLightbox('gallery8.jpg')">
+                <img src="gallery8.jpg" alt="Gallery Image 8">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Architectural</h3>
+                    <p>Interior Design</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 9 -->
+            <div class="gallery-item" onclick="openLightbox('gallery9.jpg')">
+                <img src="gallery9.jpg" alt="Gallery Image 9">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Graduate Joy</h3>
+                    <p>Graduation Day</p>
+                </div>
+            </div>
+
+            <!-- Gallery Item 10 -->
+            <div class="gallery-item" onclick="openLightbox('gallery10.jpg')">
+                <img src="gallery10.jpg" alt="Gallery Image 10">
+                <div class="gallery-overlay">
+                    <div class="gallery-overlay-icon">🔍</div>
+                    <h3>Timeless Love</h3>
+                    <p>Wedding Day</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content">
+            <button class="lightbox-close">&times;</button>
+            <img src="" alt="Lightbox Image" id="lightboxImage">
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Want to See More?</h2>
+            <p>Every project is unique, and we'd love to show you more of our work tailored to your needs.</p>
+            <a href="contact.html" class="cta-button">Get In Touch</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="footer-brand">LENS</div>
+                <p class="footer-tagline">Transforming moments into masterpieces. Premium photography services for all your special occasions.</p>
+                <div class="social-icons">
+                    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="#">Wedding</a></li>
+                    <li><a href="#">Portrait</a></li>
+                    <li><a href="#">Events</a></li>
+                    <li><a href="#">Commercial</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:+1234567890">+1 234 567 890</a></li>
+                    <li><a href="mailto:hello@lens.com">hello@lens.com</a></li>
+                    <li><a href="#">New York, NY</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 LENS Photography. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function openLightbox(imageSrc) {
+            event.stopPropagation();
+            document.getElementById('lightbox').classList.add('active');
+            document.getElementById('lightboxImage').src = imageSrc;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Animate gallery items on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 100);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Prevent lightbox close when clicking on image
+        document.querySelector('.lightbox-content').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>

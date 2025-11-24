@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievements - LENS Photography</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0a0a0a;
+            --dark-grey: #1a1a1a;
+            --brown: #8B6F47;
+            --gold: #D4AF37;
+            --silver: #C0C0C0;
+            --white: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--silver);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            font-weight: 300;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .mobile-toggle span {
+            width: 30px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        /* Page Header */
+        .page-header {
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark-grey) 0%, var(--black) 100%);
+            position: relative;
+            overflow: hidden;
+            margin-top: 80px;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            top: -300px;
+            left: -200px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        .page-header-content {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 5rem;
+            font-weight: 300;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: var(--silver);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* Achievements Section */
+        .achievements-section {
+            padding: 8rem 5%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 6rem;
+        }
+
+        .section-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-description {
+            color: var(--silver);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        /* Achievement Item - Images LEFT, Details RIGHT */
+        .achievement-item {
+            display: grid;
+            grid-template-columns: 45% 55%;
+            gap: 4rem;
+            margin-bottom: 6rem;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .achievement-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Keep images always on the left, details always on the right */
+        .achievement-images {
+            order: 1;
+        }
+
+        .achievement-details {
+            order: 2;
+            text-align: left;
+        }
+
+        /* Image Grid - 2x2 */
+        .achievement-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            position: relative;
+        }
+
+        .achievement-images::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 150px;
+            height: 150px;
+            border: 2px solid var(--gold);
+            border-right: none;
+            border-bottom: none;
+            opacity: 0.3;
+        }
+
+        .achievement-images::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 150px;
+            height: 150px;
+            border: 2px solid var(--gold);
+            border-left: none;
+            border-top: none;
+            opacity: 0.3;
+        }
+
+        .achievement-image {
+            aspect-ratio: 1;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .achievement-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.6s ease;
+            filter: grayscale(40%) brightness(0.8);
+        }
+
+        .achievement-image:hover img {
+            transform: scale(1.15);
+            filter: grayscale(0%) brightness(1);
+        }
+
+        .achievement-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
+        .achievement-image:hover::before {
+            opacity: 1;
+        }
+
+        /* Achievement Details */
+        .achievement-details {
+            padding: 2rem 0;
+        }
+
+        .achievement-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+            font-weight: 300;
+        }
+
+        .achievement-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            color: var(--white);
+            line-height: 1.2;
+        }
+
+        .achievement-description {
+            color: var(--silver);
+            line-height: 1.9;
+            font-size: 1.05rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .achievement-stats {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            justify-content: flex-start;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            color: var(--gold);
+            font-weight: 300;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--silver);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .achievement-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: flex-start;
+        }
+
+        .tag {
+            padding: 0.6rem 1.5rem;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--gold);
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        /* Divider */
+        .achievement-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            margin: 4rem 0;
+            opacity: 0.3;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--black);
+            padding: 4rem 5%;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .footer-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .footer-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+        }
+
+        .footer-tagline {
+            color: var(--silver);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            width: 45px;
+            height: 45px;
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background: var(--gold);
+            color: var(--black);
+            transform: translateY(-3px);
+        }
+
+        .footer-section h4 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul li a {
+            color: var(--silver);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--gold);
+        }
+
+        .footer-bottom {
+            max-width: 1600px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            text-align: center;
+            color: var(--silver);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .page-header h1 { font-size: 3.5rem; }
+            .achievement-item {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            .footer-container { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                flex-direction: column;
+                background: rgba(10, 10, 10, 0.98);
+                width: 100%;
+                padding: 3rem 2rem;
+                gap: 2rem;
+                transition: left 0.4s ease;
+            }
+            .nav-links.active { left: 0; }
+            .mobile-toggle { display: flex; }
+            .page-header { height: 40vh; }
+            .page-header h1 { font-size: 2.5rem; }
+            .achievement-title { font-size: 2rem; }
+            .achievement-stats { flex-direction: column; gap: 1.5rem; }
+            .stat-box { text-align: left; }
+            .footer-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">LENS</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="mobile-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1>Achievements</h1>
+            <p>Excellence Recognized Worldwide</p>
+        </div>
+    </section>
+
+    <!-- Achievements Section -->
+    <section class="achievements-section">
+        <div class="section-intro">
+            <p class="section-subtitle">Our Journey</p>
+            <h2 class="section-title">Awards & Recognition</h2>
+            <p class="section-description">Years of dedication, passion, and artistry have earned us prestigious recognition in the photography industry.</p>
+        </div>
+
+        <!-- Achievement 1 -->
+        <div class="achievement-item">
+            <div class="achievement-images">
+                <div class="achievement-image">
+                    <img src="images/award1-img1.webp" alt="Award Image 1">
+                </div>
+                <div class="achievement-image">
+                    <img src="images/award1-img2.webp" alt="Award Image 2">
+                </div>
+                <div class="achievement-image">
+                    <img src="images/award1-img3.webp" alt="Award Image 3">
+                </div>
+                <div class="achievement-image">
+                    <img src="images/award1-img4.webp" alt="Award Image 4">
+                </div>
+            </div>
+            <div class="achievement-details">
+                <div class="achievement-number">01</div>
+                <h3 class="achievement-title">International Photography Award</h3>
+                <p class="achievement-description">Winner of the prestigious Best Wedding Photography Series 2024. Recognized globally for capturing authentic emotions and creating timeless visual narratives that transcend traditional wedding photography.</p>
+                <div class="achievement-stats">
+                    <div class="stat-box">
+                        <span class="stat-value">1st</span>
+                        <span class="stat-label">Place</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">2024</span>
+                        <span class="stat-label">Year</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">150+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                </div>
+                <div class="achievement-tags">
+                    <span class="tag">Wedding</span>
+                    <span class="tag">International</span>
+                    <span class="tag">Gold Medal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="achievement-divider"></div>
+
+        <!-- Achievement 2 -->
+        <div class="achievement-item">
+            <div class="achievement-images">
+                <div class="achievement-image">
+                    <img src="images/award2-img1.webp" alt="Award Image 1">
+                </div>
+                <div class="achievement-image">
+                    <img src="images/award2-img2.webp" alt="Award Image 2">
+                </div>
+                <div class="achievement-image">
+                    <img src="images/award2-img3.webp" alt="Award Image 3">
+                </div>
+                <div class="achievement-image">
+                    <img src="images/award2-img4.webp" alt="Award Image 4">
+                </div>
+            </div>
+            <div class="achievement-details">
+                <div class="achievement-number">02</div>
+                <h3 class="achievement-title">National Geographic Featured Artist</h3>
+                <p class="achievement-description">Selected as a featured photographer for National Geographic's "Faces of Humanity" series. Our portrait work has been showcased in exhibitions across five continents, celebrating diverse cultures and stories.</p>
+                <div class="achievement-stats">
+                    <div class="stat-box">
+                        <span class="stat-value">5</span>
+                        <span class="stat-label">Continents</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">2023</span>
+                        <span class="stat-label">Year</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value">200+</span>
+                        <span class="stat-label">Portraits</span>
+                    </div>
+                </div>
+                <div class="achievement-tags">
+                    <span class="tag">Portrait</span>
+                    <span class="tag">National Geographic</span>
+                    <span class="tag">Featured</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="achievement-divider"></div>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="footer-brand">LENS</div>
+                <p class="footer-tagline">Transforming moments into masterpieces. Premium photography services for all your special occasions.</p>
+                <div class="social-icons">
+                    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="#">Wedding</a></li>
+                    <li><a href="#">Portrait</a></li>
+                    <li><a href="#">Events</a></li>
+                    <li><a href="#">Commercial</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:+1234567890">+1 234 567 890</a></li>
+                    <li><a href="mailto:hello@lens.com">hello@lens.com</a></li>
+                    <li><a href="#">New York, NY</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 LENS Photography. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Animate achievements on scroll
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.achievement-item').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - LENS Photography</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0a0a0a;
+            --dark-grey: #1a1a1a;
+            --brown: #8B6F47;
+            --gold: #D4AF37;
+            --silver: #C0C0C0;
+            --white: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--silver);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            font-weight: 300;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .mobile-toggle span {
+            width: 30px;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        /* Page Header */
+        .page-header {
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark-grey) 0%, var(--black) 100%);
+            position: relative;
+            overflow: hidden;
+            margin-top: 80px;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            bottom: -300px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-30px); }
+        }
+
+        .page-header-content {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 5rem;
+            font-weight: 300;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: var(--silver);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+            padding: 8rem 5%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 5rem;
+        }
+
+        .section-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-description {
+            color: var(--silver);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        /* Testimonials Grid - Masonry Style */
+        .testimonials-grid {
+            column-count: 3;
+            column-gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .testimonial-card {
+            break-inside: avoid;
+            margin-bottom: 2rem;
+            background: var(--dark-grey);
+            padding: 2.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            position: relative;
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .testimonial-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 6rem;
+            color: var(--gold);
+            opacity: 0.15;
+            line-height: 1;
+        }
+
+        .testimonial-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.15);
+        }
+
+        .rating {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .rating span {
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        .testimonial-text {
+            color: var(--silver);
+            line-height: 1.8;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+        }
+
+        .author-info h4 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .author-info p {
+            color: var(--silver);
+            font-size: 0.85rem;
+        }
+
+        /* Official Photographer Section */
+        .official-section {
+            padding: 8rem 5% 6rem;
+            background: var(--dark-grey);
+        }
+
+        .official-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .official-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 5rem;
+        }
+
+        .official-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3rem;
+        }
+
+        .official-card {
+            background: var(--black);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            overflow: hidden;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .official-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .official-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.2);
+        }
+
+        .official-logo {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .official-logo::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+        }
+
+        .official-card:hover .official-logo::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .official-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: grayscale(100%) brightness(1.5);
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .official-card:hover .official-logo img {
+            filter: grayscale(0%) brightness(1);
+            transform: scale(1.1);
+        }
+
+        .official-content {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .official-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--gold);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .official-content h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            color: var(--white);
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .official-content p {
+            color: var(--silver);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .official-year {
+            color: var(--gold);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 5%;
+            text-align: center;
+            background: var(--black);
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-content h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta-content p {
+            color: var(--silver);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.3rem 3.5rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--brown) 100%);
+            color: var(--black);
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--black);
+            padding: 4rem 5%;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .footer-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .footer-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--silver) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: 3px;
+        }
+
+        .footer-tagline {
+            color: var(--silver);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            width: 45px;
+            height: 45px;
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            background: var(--gold);
+            color: var(--black);
+            transform: translateY(-3px);
+        }
+
+        .footer-section h4 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul li a {
+            color: var(--silver);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--gold);
+        }
+
+        .footer-bottom {
+            max-width: 1600px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            text-align: center;
+            color: var(--silver);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .testimonials-grid { column-count: 2; }
+            .official-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 1024px) {
+            .page-header h1 { font-size: 3.5rem; }
+            .footer-container { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                flex-direction: column;
+                background: rgba(10, 10, 10, 0.98);
+                width: 100%;
+                padding: 3rem 2rem;
+                gap: 2rem;
+                transition: left 0.4s ease;
+            }
+            .nav-links.active { left: 0; }
+            .mobile-toggle { display: flex; }
+            .page-header { height: 40vh; }
+            .page-header h1 { font-size: 2.5rem; }
+            .testimonials-grid { column-count: 1; }
+            .official-grid { grid-template-columns: 1fr; }
+            .cta-content h2 { font-size: 2.5rem; }
+            .footer-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">LENS</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="mobile-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1>Client Testimonials</h1>
+            <p>What Our Clients Say About Us</p>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="section-intro">
+            <p class="section-subtitle">Feedback</p>
+            <h2 class="section-title">Client Reviews</h2>
+            <p class="section-description">We take pride in delivering exceptional photography services. Here's what our clients have to say about their experience working with us.</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card">
+                <div class="rating">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p class="testimonial-text">"Absolutely phenomenal work! The attention to detail and creative vision exceeded all expectations. Every photo tells a beautiful story that we'll cherish forever."</p>
+                <div class="testimonial-author">
+                    <div class="author-info">
+                        <h4>Sarah Johnson</h4>
+                        <p>Wedding Client</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card">
+                <div class="rating">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p class="testimonial-text">"Professional, talented, and a pleasure to work with. The portfolio shots transformed our brand image completely."</p>
+                <div class="testimonial-author">
+                    <div class="author-info">
+                        <h4>Michael Chen</h4>
+                        <p>Creative Director</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="testimonial-card">
+                <div class="rating">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p class="testimonial-text">"An incredible eye for composition and lighting. The final images were nothing short of spectacular. Will definitely work together again on future projects!"</p>
+                <div class="testimonial-author">
+                    <div class="author-info">
+                        <h4>Emma Rodriguez</h4>
+                        <p>Fashion Designer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 4 -->
+            <div class="testimonial-card">
+                <div class="rating">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p class="testimonial-text">"Captured our graduation perfectly! The photos are stunning and truly capture the emotion of the day. Well done team, they did it amazing"</p>
+                <div class="testimonial-author">
+                    <div class="author-info">
+                        <h4>David Park</h4>
+                        <p>Graduate</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 5 -->
+            <div class="testimonial-card">
+                <div class="rating">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p class="testimonial-text">"The product photography elevated our e-commerce store to a whole new level. Sales increased by 40% stunning images."</p>
+                <div class="testimonial-author">
+                    <div class="author-info">
+                        <h4>Lisa Martinez</h4>
+                        <p>E-commerce Owner</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 6 -->
+            <div class="testimonial-card">
+                <div class="rating">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <p class="testimonial-text">"Our corporate event was documented beautifully. Professional service from start to finish."</p>
+                <div class="testimonial-author">
+                    <div class="author-info">
+                        <h4>James Wilson</h4>
+                        <p>CEO</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Official Photographer Section -->
+    <section class="official-section">
+        <div class="official-container">
+            <div class="official-intro">
+                <p class="section-subtitle">Partnerships</p>
+                <h2 class="section-title">Official Photographer</h2>
+                <p class="section-description">Proud to serve as the official photographer for leading organizations and prestigious events.</p>
+            </div>
+
+            <div class="official-grid">
+                <!-- Official 1 -->
+                <div class="official-card">
+                    <div class="official-logo">
+                        <img src="images/brand1-logo.webp" alt="Brand Logo">
+                    </div>
+                    <div class="official-content">
+                        <span class="official-badge">Official Partner</span>
+                        <h3>Luxury Hotels Group</h3>
+                        <p>Official photographer for all events and promotional materials</p>
+                        <span class="official-year">Since 2020</span>
+                    </div>
+                </div>
+
+                <!-- Official 2 -->
+                <div class="official-card">
+                    <div class="official-logo">
+                        <img src="images/brand2-logo.webp" alt="Brand Logo">
+                    </div>
+                    <div class="official-content">
+                        <span class="official-badge">Official Partner</span>
+                        <h3>Fashion Week NYC PVT</h3>
+                        <p>Exclusive backstage and runway photography coverage</p>
+                        <span class="official-year">Since 2021</span>
+                    </div>
+                </div>
+
+                <!-- Official 3 -->
+                <div class="official-card">
+                    <div class="official-logo">
+                        <img src="images/brand3-logo.webp" alt="Brand Logo">
+                    </div>
+                    <div class="official-content">
+                        <span class="official-badge">Official Partner</span>
+                        <h3>Tech Innovations Corp</h3>
+                        <p>Corporate events and product launch photography</p>
+                        <span class="official-year">Since 2022</span>
+                    </div>
+                </div>
+
+                <!-- Official 4 -->
+                <div class="official-card">
+                    <div class="official-logo">
+                        <img src="images/brand4-logo.webp" alt="Brand Logo">
+                    </div>
+                    <div class="official-content">
+                        <span class="official-badge">Official Partner</span>
+                        <h3>Elite Wedding Venues</h3>
+                        <p>Preferred photographer for premium wedding destinations</p>
+                        <span class="official-year">Since 2019</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Create Magic?</h2>
+            <p>Join hundreds of satisfied clients and let us capture your special moments with artistry and passion.</p>
+            <a href="contact.html" class="cta-button">Start Your Project</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="footer-brand">LENS</div>
+                <p class="footer-tagline">Transforming moments into masterpieces. Premium photography services for all your special occasions.</p>
+                <div class="social-icons">
+                    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="#">Wedding</a></li>
+                    <li><a href="#">Portrait</a></li>
+                    <li><a href="#">Events</a></li>
+                    <li><a href="#">Commercial</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="tel:+1234567890">+1 234 567 890</a></li>
+                    <li><a href="mailto:hello@lens.com">hello@lens.com</a></li>
+                    <li><a href="#">New York, NY</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 LENS Photography. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 50);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.testimonial-card, .official-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
